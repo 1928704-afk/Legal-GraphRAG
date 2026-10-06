@@ -1339,6 +1339,11 @@
           })
         });
 
+        if (!response.ok) {
+          const errData = await response.text();
+          throw new Error(`서버 응답 상태 ${response.status}: ${errData}`);
+        }
+
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
