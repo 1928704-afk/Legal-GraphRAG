@@ -294,6 +294,34 @@
       color: #ffffff;
     }
 
+    /* Category Chips */
+    .cat-chip {
+      background: rgba(31, 41, 55, 0.7);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .cat-chip:hover {
+      background: rgba(59, 130, 246, 0.15);
+      color: #93c5fd;
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+    .cat-chip.active {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: #ffffff;
+      border-color: #3b82f6;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
     /* Footer Input */
     #footer-container {
       padding: 16px 28px 24px;
@@ -448,6 +476,18 @@
       <span>본 서비스는 대한민국 주요 법령 및 대법원 리딩 판례, 지식 그래프 트리플 기반 팩트체크용 AI 비서입니다.</span>
     </div>
 
+    <!-- Quick Category Filter Chips -->
+    <div style="padding: 10px 28px 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
+      <button class="cat-chip active" onclick="selectChip('auto', this)">🔍 자동 감지</button>
+      <button class="cat-chip" onclick="selectChip('전체', this)">🌐 전체</button>
+      <button class="cat-chip" onclick="selectChip('부동산/임대차', this)">🏠 부동산</button>
+      <button class="cat-chip" onclick="selectChip('노동/근로', this)">💼 노동</button>
+      <button class="cat-chip" onclick="selectChip('형사/범죄', this)">🚨 형사</button>
+      <button class="cat-chip" onclick="selectChip('민사/계약', this)">⚖️ 민사</button>
+      <button class="cat-chip" onclick="selectChip('교통/사고', this)">🚗 교통</button>
+      <button class="cat-chip" onclick="selectChip('소비자/금융/IT', this)">🛒 소비자</button>
+    </div>
+
     <div id="chat-box">
       <div class="message assistant">
         안녕하세요! **대한민국 대법원 주요 판례 및 법령 Hybrid GraphRAG 시스템**입니다.<br><br>
@@ -488,9 +528,25 @@
     topkRange.oninput = (e) => topkVal.innerText = e.target.value;
     bm25Range.oninput = (e) => bm25Val.innerText = e.target.value;
 
+    function selectChip(categoryVal, btn) {
+      categorySelect.value = categoryVal;
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        document.querySelectorAll('.cat-chip').forEach(c => {
+          if (c.getAttribute('onclick')?.includes(`'${categoryVal}'`)) c.classList.add('active');
+        });
+      }
+    }
+
+    categorySelect.addEventListener('change', () => {
+      selectChip(categorySelect.value);
+    });
+
     function askPreset(questionText, category) {
       userInput.value = questionText;
-      if (category) categorySelect.value = category;
+      if (category) selectChip(category);
       triggerSubmit();
     }
 
@@ -605,17 +661,36 @@
     function appendAssistantPlaceholder() {
       const msg = document.createElement('div');
       msg.className = 'message assistant';
-      msg.innerHTML = '<div style="margin-bottom: 8px;"><span class="cat-tag" style="font-size: 0.78rem; color: #a78bfa; font-weight: 700;">[분야 탐색 중...]</span></div><div class="text-body"><span style="color: #64748b;">관련 판례 및 인과관계 분석 중...</span></div>';
+      msg.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span class="cat-tag" style="font-size: 0.78rem; color: #a78bfa; font-weight: 700;">[분야 탐색 중...]</span>
+          <button class="btn-copy" style="font-size: 0.72rem; padding: 2px 7px;" onclick="copyFullAnswer(this)">📋 답변 복사</button>
+        </div>
+        <div class="text-body"><span style="color: #64748b;">관련 판례 및 인과관계 분석 중...</span></div>
+      `;
       chatBox.appendChild(msg);
       chatBox.scrollTop = chatBox.scrollHeight;
       return msg;
+    }
+
+    function copyFullAnswer(btn) {
+      const container = btn.closest('.message.assistant');
+      const text = container.querySelector('.text-body').innerText;
+      copyToClipboard(text, btn);
     }
 
     function renderKnowledgeGraphCard(container, triples) {
       const kgCard = document.createElement('div');
       kgCard.className = 'kg-visual-card';
       
-      let html = `<div class="kg-header">🕸️ 직접 연관된 법률 인과관계 연결망 (${triples.length}건)</div>`;
+      const bulkText = triples.map(t => `[${t.law || '법령'}] ${t.subject} ──(${t.predicate})──▶ ${t.object}`).join('\n');
+      
+      let html = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div class="kg-header" style="margin-bottom: 0;">🕸️ 직접 연관된 법률 인과관계 연결망 (${triples.length}건)</div>
+          <button class="btn-copy" onclick='copyToClipboard(${JSON.stringify(bulkText)}, this)'>📋 연결망 전체 복사</button>
+        </div>
+      `;
       triples.forEach(t => {
         const lawTag = t.law ? `<span class="kg-law-tag">${t.law}</span>` : '';
         html += `
@@ -694,10 +769,20 @@
     }
 
     function formatMarkdown(text) {
-      return text
-        .replace(/\n\n/g, '<br><br>')
-        .replace(/\n/g, '<br>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      if (!text) return "";
+      let formatted = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/^### (.*$)/gim, '<h4 style="color:#93c5fd; font-weight:700; margin:10px 0 4px;">$1</h4>')
+        .replace(/^## (.*$)/gim, '<h3 style="color:#60a5fa; font-weight:700; margin:12px 0 6px;">$1</h3>')
+        .replace(/^# (.*$)/gim, '<h2 style="color:#3b82f6; font-weight:700; margin:14px 0 8px;">$1</h2>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ffffff;">$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code style="background:#1e293b; color:#38bdf8; padding:2px 5px; border-radius:4px; font-size:0.88em;">$1</code>')
+        .replace(/^\s*[-*]\s+(.*$)/gim, '<div style="margin-left: 12px; display: flex; gap: 6px;"><span style="color:#38bdf8;">•</span><span>$1</span></div>')
+        .replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div style="margin-left: 12px; display: flex; gap: 6px;"><span style="color:#a78bfa; font-weight:700;">$1.</span><span>$2</span></div>')
+        .replace(/\n\n/g, '<div style="height: 8px;"></div>')
+        .replace(/\n/g, '<br>');
+      return formatted;
     }
   </script>
 </body>
