@@ -1,0 +1,17 @@
+# RAG Core & Vector DB
+chromadb>=0.4.24
+rank-bm25>=0.2.2
+langchain>=0.2.0
+langchain-community>=0.2.0
+langchain-ollama>=0.1.0
+
+# Text Processing & Embeddings
+sentence-transformers>=2.6.0
+tiktoken>=0.7.0
+
+# UI & Utilities
+streamlit>=1.35.0
+pydantic>=2.7.0
+requests>=2.31.0
+tqdm>=4.66.0
+python-dotenv>=1.0.0

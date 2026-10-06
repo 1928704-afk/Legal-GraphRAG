@@ -1,0 +1,26 @@
+# Python virtual environment
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Vector DB storage (large binaries)
+data/chroma_db/
+*.sqlite3
+
+# Environment and sensitive keys
+.env
+.env.local
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Streamlit / local logs
+.streamlit/
+*.log
