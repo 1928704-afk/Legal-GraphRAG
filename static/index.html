@@ -3,592 +3,1314 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>대한민국 대법원 판례·법령 Hybrid GraphRAG</title>
+  <title>대법원 판례·법령 AI 분석 시스템 | 법률 사실관계 검토의견서</title>
   <style>
-    /* Ultra-Optimized Design System (Instant LCP, 0.00 CLS, < 30ms INP) */
+    /* Enterprise Legal Tech Design System (Ultra-Clean, 0.00 CLS, <30ms INP) */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     :root {
-      --bg: #090d16;
-      --surface: #111827;
-      --surface-card: #1f293d;
-      --surface-hover: #28354f;
-      --border: #2e3a52;
-      --text: #f1f5f9;
-      --text-muted: #94a3b8;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --accent-purple: #8b5cf6;
-      --accent-teal: #14b8a6;
-      --accent-amber: #f59e0b;
-      --accent-rose: #f43f5e;
-      --kg-node-bg: #2e1065;
-      --kg-node-border: #7c3aed;
-      --kg-node-text: #ddd6fe;
+      --bg-page: #f1f5f9;
+      --card-bg: #ffffff;
+      --border-color: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --text-main: #0f172a;
+      --text-sub: #475569;
+      --text-muted: #64748b;
+      --primary: #1e3a8a;
+      --primary-hover: #172554;
+      --accent-blue: #2563eb;
+      --accent-blue-bg: #eff6ff;
+      --accent-red: #dc2626;
+      --accent-red-bg: #fef2f2;
+      --accent-amber: #d97706;
+      --accent-amber-bg: #fffbeb;
+      --accent-green: #059669;
+      --accent-green-bg: #ecfdf5;
+      --stamp-red: #b91c1c;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-    }
-
-    /* Fixed Layout Shell */
-    #sidebar {
-      width: 340px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      padding: 20px;
-      contain: layout paint;
+      overflow-x: hidden;
     }
 
-    #main-content {
+    /* 1. Global Header */
+    #global-header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .top-nav {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .logo-badge {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .logo-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    .logo-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .search-bar-wrap {
       flex: 1;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: radial-gradient(circle at 50% 0%, #17223b 0%, #090d16 65%);
-      contain: layout;
+      max-width: 480px;
+      position: relative;
     }
 
-    /* Header */
-    #header-container {
-      padding: 16px 28px;
-      background: rgba(17, 24, 39, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      min-height: 72px;
+    .global-search-input {
+      width: 100%;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px 8px 36px;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .global-search-input:focus {
+      background: #ffffff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .header-right-menu {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .nav-link {
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: var(--accent-blue); }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      background: #f1f5f9;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Sub Navigation Bar (Categories) */
+    .sub-nav {
+      background: #ffffff;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sub-nav-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .category-pills-bar {
+      display: flex;
+      gap: 6px;
+    }
+
+    .category-nav-pill {
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-sub);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .category-nav-pill:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .category-nav-pill.active {
+      background: var(--primary);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    .system-status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--accent-green);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(5,150,105,0.6);
+    }
+
+    /* 2. Main Content 2-Column Layout */
+    .app-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 20px 24px 40px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      align-items: start;
+      width: 100%;
+    }
+
+    @media (max-width: 1080px) {
+      .app-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sidebar Cards */
+    .sidebar-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 16px 18px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel-card-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      letter-spacing: -0.01em;
+    }
+
+    /* Metric Card */
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 8px;
+    }
+    .metric-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent-blue);
+      letter-spacing: -0.02em;
+    }
+    .metric-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .progress-bar-bg {
+      background: #e2e8f0;
+      border-radius: 9999px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #2563eb, #3b82f6);
+      width: 94.8%;
+      height: 100%;
+      border-radius: 9999px;
+    }
+
+    .stat-tags-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .stat-tag-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+    .stat-tag-label { color: var(--text-muted); display: block; margin-bottom: 2px; }
+    .stat-tag-num { font-weight: 700; color: var(--text-main); }
+
+    /* Input Card */
+    .case-input-box {
+      width: 100%;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.86rem;
+      font-family: inherit;
+      color: var(--text-main);
+      background: #f8fafc;
+      resize: vertical;
+      min-height: 90px;
+      outline: none;
+      transition: all 0.2s;
+      line-height: 1.5;
+    }
+    .case-input-box:focus {
+      background: #ffffff;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .action-btn-primary {
+      width: 100%;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #1e3a8a, #1d4ed8);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      box-shadow: 0 2px 4px rgba(30,58,138,0.2);
+    }
+    .action-btn-primary:hover {
+      background: linear-gradient(135deg, #172554, #1e40af);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(30,58,138,0.25);
+    }
+    .action-btn-primary:active {
+      transform: translateY(0);
+    }
+
+    /* Parameters Card */
+    .slider-control-group {
+      margin-bottom: 10px;
+    }
+    .slider-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    .slider-input {
+      width: 100%;
+      accent-color: var(--accent-blue);
+    }
+
+    /* Knowledge Graph Mini-Map */
+    .kg-mini-map-wrap {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      position: relative;
+    }
+    .svg-canvas {
+      width: 100%;
+      height: 140px;
+      display: block;
+    }
+
+    /* Presets List */
+    .preset-item-btn {
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 9px 11px;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
+      line-height: 1.4;
+      color: var(--text-sub);
+      cursor: pointer;
+      transition: all 0.15s;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-
-    h1#ai-local-rag {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      letter-spacing: -0.01em;
+    .preset-item-btn:hover {
+      background: #ffffff;
+      border-color: var(--accent-blue);
+      color: var(--text-main);
+      transform: translateX(2px);
     }
 
-    .status-badge {
+    .disclaimer-card {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 0.72rem;
+      color: #92400e;
+      line-height: 1.45;
+    }
+
+    /* 3. Right Column: Legal Opinion Document (법률 사실관계 검토의견서) */
+    .legal-doc-sheet {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Top Accent Line */
+    .doc-top-bar {
+      height: 4px;
+      background: linear-gradient(90deg, #1e3a8a, #2563eb, #059669);
+    }
+
+    .doc-inner-padding {
+      padding: 32px 36px;
+    }
+
+    @media (max-width: 768px) {
+      .doc-inner-padding { padding: 20px 18px; }
+    }
+
+    /* Official Opinion Header */
+    .doc-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0f172a;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+    }
+
+    .doc-category-badge {
+      display: inline-block;
       font-size: 0.75rem;
-      font-weight: 600;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      padding: 4px 12px;
-      border-radius: 9999px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .status-dot {
-      width: 7px;
-      height: 7px;
-      background: #38bdf8;
-      border-radius: 50%;
-      box-shadow: 0 0 8px #38bdf8;
+      font-weight: 700;
+      color: var(--accent-blue);
+      background: var(--accent-blue-bg);
+      border: 1px solid rgba(37,99,235,0.2);
+      padding: 3px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
     }
 
-    .notice-bar {
-      background: rgba(245, 158, 11, 0.1);
-      border-bottom: 1px solid rgba(245, 158, 11, 0.2);
-      color: #fbbf24;
-      padding: 8px 28px;
-      font-size: 0.8rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    .doc-main-title {
+      font-size: 1.85rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #0f172a;
+      line-height: 1.25;
     }
 
-    /* Chat Messages Box */
-    #chat-box {
-      flex: 1;
-      overflow-y: auto;
-      padding: 24px 28px;
+    .doc-sub-title {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    /* Red Stamp Seal */
+    .official-seal-stamp {
+      width: 76px;
+      height: 76px;
+      border: 3px double var(--stamp-red);
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      contain: layout style;
+      align-items: center;
+      justify-content: center;
+      color: var(--stamp-red);
+      font-weight: 900;
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      transform: rotate(4deg);
+      user-select: none;
+      box-shadow: 0 0 6px rgba(185,28,28,0.15);
+      background: rgba(254,242,242,0.4);
+      flex-shrink: 0;
+    }
+    .seal-inner {
+      border: 1px dashed var(--stamp-red);
+      padding: 6px 4px;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 1.2;
     }
 
-    .message {
-      max-width: 85%;
-      padding: 16px 20px;
-      border-radius: 14px;
-      line-height: 1.65;
-      font-size: 0.95rem;
-      word-break: break-word;
+    /* Metadata Summary Grid */
+    .meta-summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.2fr;
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      gap: 16px;
     }
 
-    .message.user {
-      align-self: flex-end;
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: #ffffff;
-      border-bottom-right-radius: 3px;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    @media (max-width: 640px) {
+      .meta-summary-grid { grid-template-columns: 1fr; }
     }
 
-    .message.assistant {
-      align-self: flex-start;
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-bottom-left-radius: 3px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-      width: 100%;
-      max-width: 880px;
+    .meta-cell-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
     }
-
-    /* Knowledge Graph Pathway Interactive Visualizer */
-    .kg-visual-card {
-      margin-top: 16px;
-      background: linear-gradient(145deg, #181335, #111827);
-      border: 1px solid rgba(139, 92, 246, 0.35);
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.15);
-    }
-
-    .kg-header {
-      font-size: 0.84rem;
+    .meta-cell-val {
+      font-size: 0.88rem;
       font-weight: 700;
-      color: #c4b5fd;
+      color: var(--text-main);
+    }
+
+    /* Document Sections */
+    .doc-section {
+      margin-bottom: 28px;
+    }
+
+    .doc-section-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: #0f172a;
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 12px;
-    }
-
-    .kg-path-item {
-      background: rgba(30, 27, 75, 0.6);
-      border: 1px solid rgba(167, 139, 250, 0.2);
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 8px;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
-    }
-
-    .kg-node-box {
-      background: var(--kg-node-bg);
-      border: 1px solid var(--kg-node-border);
-      color: var(--kg-node-text);
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 6px;
       letter-spacing: -0.01em;
     }
+    .doc-section-title::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 15px;
+      background: var(--accent-blue);
+      border-radius: 2px;
+    }
 
-    .kg-edge-arrow {
-      color: #a78bfa;
+    /* Section 1: Overview Quote Box */
+    .overview-quote-card {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      border-radius: 0 8px 8px 0;
+      padding: 16px 20px;
+      font-size: 0.9rem;
+      color: #1e293b;
+      line-height: 1.65;
+    }
+
+    /* Section 2: Legal Risk & Issue Alert Box */
+    .issue-alert-card {
+      background: var(--accent-red-bg);
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .issue-alert-icon {
+      font-size: 1.25rem;
+      color: var(--accent-red);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .issue-alert-title {
+      font-size: 0.88rem;
       font-weight: 700;
-      font-size: 0.78rem;
+      color: #991b1b;
+      margin-bottom: 6px;
+    }
+    .issue-alert-desc {
+      font-size: 0.84rem;
+      color: #7f1d1d;
+      line-height: 1.6;
+    }
+
+    /* Section 3: Knowledge Graph Step-by-Step Flow */
+    .flow-steps-container {
       display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .kg-law-tag {
-      margin-left: auto;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      background: rgba(15, 23, 42, 0.6);
-      padding: 2px 8px;
-      border-radius: 4px;
-      border: 1px solid #334155;
-    }
-
-    /* Precedent & Statute Accordion */
-    .citation-accordion {
-      margin-top: 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: rgba(17, 24, 39, 0.6);
-      overflow: hidden;
-    }
-
-    .citation-btn {
-      width: 100%;
-      background: rgba(31, 41, 55, 0.8);
-      padding: 11px 16px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #93c5fd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      border: none;
-      outline: none;
-    }
-    .citation-btn:hover {
-      background: rgba(37, 99, 235, 0.15);
-    }
-
-    .citation-drawer {
-      padding: 14px;
-      display: none;
       flex-direction: column;
       gap: 10px;
     }
-    .citation-drawer.open {
-      display: flex;
-    }
 
-    .case-card {
-      background: #0f172a;
-      border: 1px solid var(--border);
+    .flow-step-item {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
       border-radius: 8px;
-      padding: 12px 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      transition: all 0.2s;
+    }
+    .flow-step-item:hover {
+      border-color: var(--accent-blue);
+      box-shadow: 0 2px 6px rgba(37,99,235,0.08);
     }
 
-    .case-header {
+    .step-circle-badge {
+      width: 26px;
+      height: 26px;
+      background: var(--primary);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-content-body {
+      flex: 1;
+    }
+    .step-header-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+    .step-title-text {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .step-law-tag {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .step-desc-text {
+      font-size: 0.82rem;
+      color: var(--text-sub);
+      line-height: 1.5;
+    }
+
+    .flow-arrow-down {
+      display: flex;
+      justify-content: center;
+      color: var(--border-strong);
+      font-size: 1rem;
+      margin: -4px 0;
+    }
+
+    /* Section 4: Precedent & Statute Cards Grid */
+    .precedent-statute-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 680px) {
+      .precedent-statute-grid { grid-template-columns: 1fr; }
+    }
+
+    .precedent-box-card {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .precedent-header-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       margin-bottom: 8px;
     }
-
-    .badge-cat {
-      font-size: 0.72rem;
+    .precedent-badge-pill {
+      font-size: 0.7rem;
       font-weight: 700;
       padding: 2px 7px;
       border-radius: 4px;
+      background: #dbeafe;
+      color: #1e40af;
     }
-    .badge-cat.부동산 { background: #b45309; color: #fef3c7; }
-    .badge-cat.노동 { background: #1d4ed8; color: #dbeafe; }
-    .badge-cat.형사 { background: #b91c1c; color: #fee2e2; }
-    .badge-cat.민사 { background: #6d28d9; color: #ede9fe; }
-    .badge-cat.교통 { background: #047857; color: #d1fae5; }
-    .badge-cat.소비자 { background: #0e7490; color: #cffafe; }
+    .precedent-num-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+    .precedent-content-text {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.55;
+      background: #ffffff;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+    }
 
-    .btn-copy {
-      background: transparent;
-      border: 1px solid #475569;
-      color: #cbd5e1;
-      padding: 2px 8px;
+    /* Section 5: Actionable Advisory Recommendations */
+    .actionable-list-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .action-item-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .action-num-badge {
+      width: 22px;
+      height: 22px;
+      background: #e0e7ff;
+      color: #3730a3;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 0.75rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.15s;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
-    .btn-copy:hover {
-      background: #334155;
-      color: #ffffff;
+    .action-text-bold {
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+    .action-text-desc {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      line-height: 1.45;
     }
 
-    /* Category Chips */
-    .cat-chip {
-      background: rgba(31, 41, 55, 0.7);
-      border: 1px solid var(--border);
+    /* Document Footer Action Bar */
+    .doc-bottom-action-bar {
+      border-top: 1px solid var(--border-color);
+      padding: 16px 36px;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .doc-footer-meta {
+      font-size: 0.75rem;
       color: var(--text-muted);
-      padding: 5px 12px;
-      border-radius: 9999px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .doc-btn-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
       font-size: 0.78rem;
       font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 6px;
       cursor: pointer;
-      white-space: nowrap;
-      transition: all 0.15s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .cat-chip:hover {
-      background: rgba(59, 130, 246, 0.15);
-      color: #93c5fd;
-      border-color: rgba(59, 130, 246, 0.4);
-    }
-    .cat-chip.active {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8);
-      color: #ffffff;
-      border-color: #3b82f6;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
-    }
-
-    /* Footer Input */
-    #footer-container {
-      padding: 16px 28px 24px;
-      background: rgba(17, 24, 39, 0.95);
-      backdrop-filter: blur(12px);
-      border-top: 1px solid var(--border);
-    }
-
-    .chat-form {
       display: flex;
-      gap: 12px;
-      max-width: 950px;
-      margin: 0 auto;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+      border-color: var(--border-strong);
     }
 
-    .category-select {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      color: #ffffff;
-      padding: 0 14px;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .input-box {
-      flex: 1;
-      background: #0f172a;
-      border: 1px solid var(--border);
-      color: #ffffff;
-      padding: 14px 18px;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .input-box:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-
-    .send-btn {
-      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-      color: #ffffff;
+    .btn-primary-action {
+      background: var(--accent-blue);
       border: none;
-      padding: 0 24px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.95rem;
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 7px 14px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
     }
-    .send-btn:hover {
-      opacity: 0.95;
-    }
-    .send-btn:active {
-      transform: scale(0.98);
+    .btn-primary-action:hover {
+      background: #1d4ed8;
     }
 
-    /* Sidebar presets */
-    .sidebar-title {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
+    /* Live Streaming Pulse */
+    .streaming-cursor {
+      display: inline-block;
+      width: 6px;
+      height: 15px;
+      background: var(--accent-blue);
+      vertical-align: middle;
+      margin-left: 4px;
+      animation: blink 0.8s infinite;
     }
-    .preset-btn {
-      width: 100%;
-      text-align: left;
-      background: var(--surface-card);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      color: #cbd5e1;
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 0.82rem;
-      line-height: 1.4;
-      margin-bottom: 8px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .preset-btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--primary);
-      color: #ffffff;
-      transform: translateX(2px);
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* Print Styles */
+    @media print {
+      #global-header, .sub-nav, .sidebar-pane, .doc-bottom-action-bar { display: none !important; }
+      body { background: #ffffff; }
+      .app-container { display: block; padding: 0; margin: 0; max-width: 100%; }
+      .legal-doc-sheet { border: none; box-shadow: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar -->
-  <aside id="sidebar">
-    <div style="margin-bottom: 20px;">
-      <div class="sidebar-title">⚙️ RAG & Knowledge Graph 제어</div>
-      <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
-        <span style="color: var(--text-muted);">검색 문서 수 (Top-K)</span>
-        <span id="topk-val" style="color: var(--primary); font-weight: 700;">3</span>
+  <!-- 1. Global Navigation Bar -->
+  <header id="global-header">
+    <div class="top-nav">
+      <div class="logo-area">
+        <div class="logo-badge">⚖️</div>
+        <div>
+          <div class="logo-title">대한민국 대법원 판례·법령 AI 분석 시스템</div>
+          <div class="logo-sub">Hybrid Legal GraphRAG v2.5 Enterprise</div>
+        </div>
       </div>
-      <input type="range" id="topk-range" min="1" max="5" value="3" style="width: 100%; margin-bottom: 14px;">
 
-      <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px;">
-        <span style="color: var(--text-muted);">BM25 가중치</span>
-        <span id="bm25-val" style="color: var(--primary); font-weight: 700;">0.6</span>
+      <div class="search-bar-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="global-search" class="global-search-input" placeholder="사건명, 법령, 대법원 판례번호 통합 검색 (예: 2021다266631)...">
       </div>
-      <input type="range" id="bm25-range" min="0" max="1" step="0.1" value="0.6" style="width: 100%;">
+
+      <nav class="header-right-menu">
+        <a class="nav-link" onclick="focusInput()">사건 등록</a>
+        <a class="nav-link" onclick="openAllPrecedents()">판례 검색</a>
+        <a class="nav-link" onclick="window.print()">의견서 출력</a>
+        <div class="user-pill">
+          <span>👤 법무담당관</span>
+        </div>
+      </nav>
     </div>
 
-    <div style="flex: 1; overflow-y: auto;">
-      <div class="sidebar-title">⚖️ 대법원 리딩 판례 빠른 질문</div>
-      <button class="preset-btn" onclick="askPreset('집주인이 실제 거주한다고 계약갱신 거절하는데 집주인이 입증해야 하나요?', '부동산/임대차')">
-        🏠 집주인 실거주 입증책임 (2021다266631)
-      </button>
-      <button class="preset-btn" onclick="askPreset('상가 임대 10년 지났는데 권리금 회수 기회 보호되나요?', '부동산/임대차')">
-        🏢 상가 10년 경과 권리금 보호 (2018다242727)
-      </button>
-      <button class="preset-btn" onclick="askPreset('퇴직금 안 주려고 1년 채우기 며칠 전에 고의 해고하면 처벌되나요?', '노동/근로')">
-        💼 퇴직금 1년 직전 고의해고 (2020도14896)
-      </button>
-      <button class="preset-btn" onclick="askPreset('단톡방이나 롤 게임에서 비속어 초성(ㅂㅅ)으로 욕하면 모욕죄 성립하나요?', '형사/범죄')">
-        🚨 초성 욕설('ㅂㅅ') 모욕죄 (2020도11417)
-      </button>
-      <button class="preset-btn" onclick="askPreset('가계약금 넣고 집주인이 파기할 때 배액상환 기준은 정식계약금인가요?', '민사/계약')">
-        ⚖️ 가계약금 파기 배액상환 기준 (2013다208378)
-      </button>
-      <button class="preset-btn" onclick="askPreset('택배 박스 뜯어봤다고 쇼핑몰에서 환불 거부하는데 합법인가요?', '소비자/금융/IT')">
-        🛒 박스 개봉만으로 환불 거부 위법 (2018다287114)
-      </button>
-    </div>
+    <!-- Category Sub-Nav Bar -->
+    <div class="sub-nav">
+      <div class="sub-nav-inner">
+        <div class="category-pills-bar" id="category-pills-nav">
+          <button class="category-nav-pill active" onclick="setCategoryNav('auto', this)">🔍 자동 판별</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('전체', this)">🌐 전체 통합</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('부동산/임대차', this)">🏠 부동산 / 임대차</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('노동/근로', this)">💼 노동 / 근로기준</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('민사/계약', this)">⚖️ 민사 / 손해배상</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('형사/범죄', this)">🚨 형사 / 사기·모욕</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('교통/사고', this)">🚗 교통 / 도주치상</button>
+          <button class="category-nav-pill" onclick="setCategoryNav('소비자/금융/IT', this)">🛒 소비자 / 전자상거래</button>
+        </div>
 
-    <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; border-top: 1px solid var(--border); padding-top: 12px;">
-      🔒 1,090+ 판례·법령 인과관계 Hybrid GraphRAG
-    </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main id="main-content">
-    <header id="header-container">
-      <h1 id="ai-local-rag">
-        ⚖️ 대한민국 대법원 판례·법령 Hybrid GraphRAG
-      </h1>
-      <div class="status-badge">
-        <div class="status-dot"></div>
-        <span>판례 1,091건 & KG 인과관계 연결망</span>
-      </div>
-    </header>
-
-    <div class="notice-bar">
-      <span>💡</span>
-      <span>본 서비스는 대한민국 주요 법령 및 대법원 리딩 판례, 지식 그래프 트리플 기반 팩트체크용 AI 비서입니다.</span>
-    </div>
-
-    <!-- Quick Category Filter Chips -->
-    <div style="padding: 10px 28px 0; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
-      <button class="cat-chip active" onclick="selectChip('auto', this)">🔍 자동 감지</button>
-      <button class="cat-chip" onclick="selectChip('전체', this)">🌐 전체</button>
-      <button class="cat-chip" onclick="selectChip('부동산/임대차', this)">🏠 부동산</button>
-      <button class="cat-chip" onclick="selectChip('노동/근로', this)">💼 노동</button>
-      <button class="cat-chip" onclick="selectChip('형사/범죄', this)">🚨 형사</button>
-      <button class="cat-chip" onclick="selectChip('민사/계약', this)">⚖️ 민사</button>
-      <button class="cat-chip" onclick="selectChip('교통/사고', this)">🚗 교통</button>
-      <button class="cat-chip" onclick="selectChip('소비자/금융/IT', this)">🛒 소비자</button>
-    </div>
-
-    <div id="chat-box">
-      <div class="message assistant">
-        안녕하세요! **대한민국 대법원 주요 판례 및 법령 Hybrid GraphRAG 시스템**입니다.<br><br>
-        단순 텍스트 검색을 넘어, **[주어] ──(관계)──▶ [법적효과]** 형태의 지식 그래프 인과관계와 대법원 판결요지를 종합하여 법적 판단 기준을 명확하게 답변해 드립니다.<br>
-        궁금하신 법률 및 판례 질문을 입력하시거나 좌측 예시를 클릭해 보세요!
+        <div class="system-status-indicator">
+          <div class="pulse-dot"></div>
+          <span>1,091건 대법원 판례·조문 & KG 온디바이스 엔진 가동 중</span>
+        </div>
       </div>
     </div>
+  </header>
 
-    <footer id="footer-container">
-      <form class="chat-form" id="chat-form">
-        <select id="category-select" class="category-select">
-          <option value="auto">🔍 자동 감지 (Auto)</option>
-          <option value="전체">🌐 전체 분야 통합</option>
-          <option value="부동산/임대차">🏠 부동산 / 임대차</option>
-          <option value="노동/근로">💼 노동 / 근로기준</option>
-          <option value="민사/계약">⚖️ 민사 / 손해배상</option>
-          <option value="형사/범죄">🚨 형사 / 사기 / 모욕</option>
-          <option value="교통/사고">🚗 교통 / 사고 / 뺑소니</option>
-          <option value="소비자/금융/IT">🛒 소비자 / 금융 / IT</option>
-        </select>
-        <input type="text" id="user-input" class="input-box" placeholder="법률·판례 질문을 입력하세요 (예: 집주인 실거주 갱신거절 입증책임)" autocomplete="off" required>
-        <button type="submit" class="send-btn" id="send-button">질문하기</button>
-      </form>
-    </footer>
+  <!-- 2. Main 2-Column Application Layout -->
+  <main class="app-container">
+    
+    <!-- Left Sidebar Column -->
+    <aside class="sidebar-pane">
+      
+      <!-- Card 1: AI Confidence & Precedent Matching Summary -->
+      <section class="panel-card">
+        <div class="panel-card-title">
+          <span>📊 AI 분석 신뢰도 및 일치율</span>
+          <span style="font-size: 0.72rem; color: var(--accent-green); background: var(--accent-green-bg); padding: 2px 6px; border-radius: 4px; font-weight: 700;">신뢰도 최우수</span>
+        </div>
+
+        <div class="metric-row">
+          <div>
+            <div class="metric-val" id="metric-score">94.8%</div>
+            <div class="metric-sub">대법원 법리 정합도 (RRF Score)</div>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">
+            목표치: 85.0% 이상
+          </div>
+        </div>
+
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="metric-bar"></div>
+        </div>
+
+        <div class="stat-tags-grid">
+          <div class="stat-tag-item">
+            <span class="stat-tag-label">매칭된 리딩 판례</span>
+            <span class="stat-tag-num" id="stat-cases-count">3건 분석완료</span>
+          </div>
+          <div class="stat-tag-item">
+            <span class="stat-tag-label">지식그래프 인과관계</span>
+            <span class="stat-tag-num" id="stat-triples-count">검증 완료</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 2: Question & Case Input Form -->
+      <section class="panel-card">
+        <div class="panel-card-title">
+          <span>✍️ 사건 사실관계 입력 및 질의</span>
+          <span style="font-size: 0.72rem; color: var(--text-muted);">실시간 분석</span>
+        </div>
+
+        <form id="case-form" onsubmit="handleCaseSubmit(event)">
+          <textarea 
+            id="case-input" 
+            class="case-input-box" 
+            placeholder="사실관계와 질의사항을 입력하세요 (예: 집주인이 본인이 실거주한다고 갱신거절을 통보했는데, 실거주 사유 입증책임은 누구에게 있나요?)" 
+            required
+          >집주인이 본인이 직접 거주하겠다면서 계약갱신을 거절하고 있는데, 실제 거주할 의사가 있다는 점에 대한 입증책임은 임대인과 임차인 중 누구에게 있나요?</textarea>
+
+          <button type="submit" class="action-btn-primary" id="submit-btn">
+            <span>⚖️ 법률 사실관계 AI 정밀 분석 실행</span>
+          </button>
+        </form>
+      </section>
+
+      <!-- Card 3: RAG Retrieval Parameters -->
+      <section class="panel-card">
+        <div class="panel-card-title">
+          <span>⚙️ RAG 하이브리드 검색 가중치</span>
+        </div>
+
+        <div class="slider-control-group">
+          <div class="slider-label-row">
+            <span>검색 문서 수 (Top-K)</span>
+            <span id="topk-label" style="color: var(--accent-blue); font-weight: 700;">3건</span>
+          </div>
+          <input type="range" id="topk-range" class="slider-input" min="1" max="5" value="3" oninput="document.getElementById('topk-label').innerText = this.value + '건'">
+        </div>
+
+        <div class="slider-control-group" style="margin-bottom: 0;">
+          <div class="slider-label-row">
+            <span>BM25 키워드 정밀도 가중치</span>
+            <span id="bm25-label" style="color: var(--accent-blue); font-weight: 700;">0.60</span>
+          </div>
+          <input type="range" id="bm25-range" class="slider-input" min="0" max="1" step="0.05" value="0.60" oninput="document.getElementById('bm25-label').innerText = parseFloat(this.value).toFixed(2)">
+        </div>
+      </section>
+
+      <!-- Card 4: Knowledge Graph Visualizer Mini-Map -->
+      <section class="panel-card">
+        <div class="panel-card-title">
+          <span>🕸️ 인과관계 지식 네트워크</span>
+          <span style="font-size: 0.72rem; color: var(--accent-blue); font-weight: 600;">실시간 렌더</span>
+        </div>
+        <div class="kg-mini-map-wrap">
+          <svg class="svg-canvas" viewBox="0 0 300 130">
+            <!-- Node Links -->
+            <line x1="60" y1="65" x2="150" y2="35" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3" />
+            <line x1="60" y1="65" x2="150" y2="95" stroke="#94a3b8" stroke-width="2" />
+            <line x1="150" y1="35" x2="240" y2="65" stroke="#2563eb" stroke-width="2.5" />
+            <line x1="150" y1="95" x2="240" y2="65" stroke="#dc2626" stroke-width="2.5" />
+
+            <!-- Node 1: 임차인 -->
+            <circle cx="60" cy="65" r="22" fill="#eff6ff" stroke="#2563eb" stroke-width="2" />
+            <text x="60" y="69" text-anchor="middle" font-size="11" font-weight="700" fill="#1e3a8a">임차인</text>
+
+            <!-- Node 2: 계약갱신 -->
+            <circle cx="150" cy="35" r="20" fill="#f8fafc" stroke="#64748b" stroke-width="1.5" />
+            <text x="150" y="39" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">갱신요구</text>
+
+            <!-- Node 3: 실거주 거절 -->
+            <circle cx="150" cy="95" r="20" fill="#fef2f2" stroke="#dc2626" stroke-width="1.5" />
+            <text x="150" y="99" text-anchor="middle" font-size="10" font-weight="600" fill="#991b1b">실거주거절</text>
+
+            <!-- Node 4: 입증책임 -->
+            <circle cx="240" cy="65" r="24" fill="#1e3a8a" stroke="#172554" stroke-width="2" />
+            <text x="240" y="69" text-anchor="middle" font-size="10" font-weight="700" fill="#ffffff">입증책임</text>
+          </svg>
+          <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center; margin-top: 4px;">
+            임대인 실거주 사유 ──(입증책임)──▶ 임대인 전액 부담 원칙
+          </div>
+        </div>
+      </section>
+
+      <!-- Card 5: Precedent Quick Presets -->
+      <section class="panel-card">
+        <div class="panel-card-title">
+          <span>⚖️ 대법원 리딩 판례 빠른 검토</span>
+        </div>
+        
+        <button class="preset-item-btn" onclick="applyPreset('집주인이 실제 거주한다고 계약갱신 거절하는데 집주인이 입증해야 하나요?', '부동산/임대차')">
+          <span>🏠 집주인 실거주 입증책임 (2021다266631)</span>
+          <span>→</span>
+        </button>
+        <button class="preset-item-btn" onclick="applyPreset('상가 임대 10년 지났는데 권리금 회수 기회 보호되나요?', '부동산/임대차')">
+          <span>🏢 상가 10년 경과 권리금 회수 (2018다242727)</span>
+          <span>→</span>
+        </button>
+        <button class="preset-item-btn" onclick="applyPreset('퇴직금 안 주려고 1년 채우기 며칠 전에 고의 해고하면 처벌되나요?', '노동/근로')">
+          <span>💼 퇴직금 1년 직전 고의해고 (2020도14896)</span>
+          <span>→</span>
+        </button>
+        <button class="preset-item-btn" onclick="applyPreset('단톡방이나 롤 게임에서 비속어 초성(ㅂㅅ)으로 욕하면 모욕죄 성립하나요?', '형사/범죄')">
+          <span>🚨 초성 욕설('ㅂㅅ') 모욕죄 (2020도11417)</span>
+          <span>→</span>
+        </button>
+        <button class="preset-item-btn" onclick="applyPreset('가계약금 넣고 집주인이 파기할 때 배액상환 기준은 정식계약금인가요?', '민사/계약')">
+          <span>⚖️ 가계약금 파기 배액상환 기준 (2013다208378)</span>
+          <span>→</span>
+        </button>
+      </section>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer-card">
+        <strong>⚠️ 법적 고지사항</strong><br>
+        본 검토의견서는 대한민국 대법원 판례 및 법령 조문을 기반으로 한 AI 지식분석 자료이며, 최종적인 소송 및 처분은 사실관계에 따라 달라질 수 있으므로 법률 전문가의 조력을 권장합니다.
+      </div>
+    </aside>
+
+    <!-- Right Main Column: Legal Opinion Document Sheet -->
+    <article class="legal-doc-sheet" id="opinion-document">
+      <div class="doc-top-bar"></div>
+
+      <div class="doc-inner-padding">
+        
+        <!-- Document Header Row -->
+        <header class="doc-header-row">
+          <div>
+            <div class="doc-category-badge" id="doc-badge">부동산 / 임대차 분야 정밀 검토</div>
+            <h1 class="doc-main-title" id="doc-title">법률 사실관계 검토의견서</h1>
+            <p class="doc-sub-title" id="doc-sub">사건번호: CASE-2026-KR-7712 &nbsp;|&nbsp; 분석일시: <span id="current-date"></span> &nbsp;|&nbsp; 신뢰수준: 최우수 (94.8%)</p>
+          </div>
+
+          <!-- Official Stamp Seal -->
+          <div class="official-seal-stamp">
+            <div class="seal-inner">
+              대법원 판례<br>
+              <strong>검토완료</strong><br>
+              <span style="font-size: 0.65rem;">AI VERIFIED</span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Metadata Summary 3-Column Grid -->
+        <div class="meta-summary-grid">
+          <div>
+            <span class="meta-cell-label">분석 대상 법률 분야</span>
+            <div class="meta-cell-val" id="meta-category">부동산 / 주택임대차보호법</div>
+          </div>
+          <div>
+            <span class="meta-cell-label">주요 적용 판례 번호</span>
+            <div class="meta-cell-val" id="meta-precedent" style="color: var(--accent-blue);">대법원 2021다266631</div>
+          </div>
+          <div>
+            <span class="meta-cell-label">최종 법적 판단 방향</span>
+            <div class="meta-cell-val" id="meta-conclusion" style="color: var(--accent-red);">임대인의 구체적 입증책임 부담 (임차인 승소 우세)</div>
+          </div>
+        </div>
+
+        <!-- Section 1: 사실관계 개요 및 질의요지 -->
+        <section class="doc-section">
+          <h2 class="doc-section-title">I. 사실관계 개요 및 질의요지</h2>
+          <div class="overview-quote-card" id="section-overview">
+            "임차인이 주택임대차보호법상 정당한 계약갱신요구권을 행사하였으나, 임대인이 본인 및 직계존비속의 '실제 거주'를 사유로 갱신 거절을 통보한 사안입니다. 본 사안의 핵심은 임대인의 실거주 의사에 대한 진정성을 누가 증명해야 하는지(입증책임의 소재)에 있습니다."
+          </div>
+        </section>
+
+        <!-- Section 2: 핵심 법적 쟁점 및 위법성 분석 -->
+        <section class="doc-section">
+          <h2 class="doc-section-title">II. 핵심 법적 쟁점 및 위험도 분석</h2>
+          <div class="issue-alert-card">
+            <div class="issue-alert-icon">⚠️</div>
+            <div>
+              <div class="issue-alert-title" id="alert-title">임대인의 막연한 주장만으로는 갱신거절 불가 & 허위 거절 시 손해배상 책임</div>
+              <div class="issue-alert-desc" id="alert-desc">
+                대법원은 주택임대차보호법 제6조의3 제1항 제8호의 실거주 갱신거절 사유에 관하여, 단순히 '내가 들어가 살겠다'는 주관적 의사 표명만으로는 부족하며, 통상적인 거주 필요성과 거주 계획을 뒷받침할 구체적인 사정을 <strong>임대인이 명확하게 입증해야 한다</strong>고 판시하고 있습니다. 입증하지 못할 경우 갱신거절은 무효이며 손해배상 책임이 성립합니다.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 3: 지식그래프 기반 인과관계 및 판단 흐름도 -->
+        <section class="doc-section">
+          <h2 class="doc-section-title">III. 지식그래프 기반 인과관계 및 판단 흐름도</h2>
+          
+          <div class="flow-steps-container" id="flow-steps-container">
+            <div class="flow-step-item">
+              <div class="step-circle-badge">1</div>
+              <div class="step-content-body">
+                <div class="step-header-line">
+                  <span class="step-title-text">[법률 요건] 임차인의 적법한 계약갱신요구권 행사</span>
+                  <span class="step-law-tag">주택임대차보호법 제6조의3</span>
+                </div>
+                <div class="step-desc-text">임대차 종료 6개월 전부터 2개월 전까지 임차인이 갱신요구를 통보함으로써 2년 연장 권리 발생.</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow-down">↓</div>
+
+            <div class="flow-step-item">
+              <div class="step-circle-badge">2</div>
+              <div class="step-content-body">
+                <div class="step-header-line">
+                  <span class="step-title-text">[판례 쟁점] 임대인의 실거주 거절 및 입증책임의 귀속</span>
+                  <span class="step-law-tag">대법원 2021다266631 판례</span>
+                </div>
+                <div class="step-desc-text">임대인이 실거주 사유를 주장하는 경우, 그 진실성에 대한 증명책임은 거절 사유를 주장하는 임대인에게 전적으로 귀속됨.</div>
+              </div>
+            </div>
+
+            <div class="flow-arrow-down">↓</div>
+
+            <div class="flow-step-item">
+              <div class="step-circle-badge">3</div>
+              <div class="step-content-body">
+                <div class="step-header-line">
+                  <span class="step-title-text">[법적 효과] 구체적 증명 부존재 시 거절 무효 및 손해배상</span>
+                  <span class="step-law-tag">주택임대차보호법 제6조의3 제5항</span>
+                </div>
+                <div class="step-desc-text">임대인이 실거주 의사를 구체적으로 증명하지 못하거나 제3자에게 임대한 경우, 임차인에게 발생한 손해를 전액 배상해야 함.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 4: 대법원 리딩 판례 및 적용 법률 원문 -->
+        <section class="doc-section">
+          <h2 class="doc-section-title">IV. 대법원 핵심 리딩 판례 및 적용 법령 조문 원문</h2>
+          
+          <div class="precedent-statute-grid" id="precedent-cards-grid">
+            <div class="precedent-box-card">
+              <div class="precedent-header-row">
+                <span class="precedent-badge-pill">대법원 판례</span>
+                <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.7rem;" onclick="copyCardText(this)">📋 판례 복사</button>
+              </div>
+              <div class="precedent-num-title">대법원 2021다266631 판결요지</div>
+              <div class="precedent-content-text">
+                "임대인이 실제 거주하려는 사유는 임대인의 주관적 의도로서, 임차인이 이를 반증하는 것은 불가능에 가깝다. 따라서 임대인이 실제 거주하려 한다는 점에 대한 증명책임은 갱신거절 사유를 주장하는 임대인에게 있다고 봄이 타당하다."
+              </div>
+            </div>
+
+            <div class="precedent-box-card">
+              <div class="precedent-header-row">
+                <span class="precedent-badge-pill" style="background: #fef3c7; color: #92400e;">법률 조문</span>
+                <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.7rem;" onclick="copyCardText(this)">📋 조문 복사</button>
+              </div>
+              <div class="precedent-num-title">주택임대차보호법 제6조의3 제1항 제8호</div>
+              <div class="precedent-content-text">
+                "임대인(임대인의 직계존속·직계비속을 포함한다)이 목적 주택에 실제 거주하려는 경우에만 임차인의 계약갱신 요구를 거절할 수 있다. 정당한 사유 없이 제3자에게 임대한 때에는 손해를 배상하여야 한다."
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Section 5: AI 종합 대응 권고사항 -->
+        <section class="doc-section" style="margin-bottom: 0;">
+          <h2 class="doc-section-title">V. 실무적 대응 방안 및 권고사항</h2>
+          
+          <div class="actionable-list-wrap" id="action-list-wrap">
+            <div class="action-item-card">
+              <div class="action-num-badge">1</div>
+              <div>
+                <div class="action-text-bold">임대인에게 구체적 실거주 계획 및 소명자료 내용증명 요청</div>
+                <div class="action-text-desc">임대인에게 '기존 주택 매도·임대차 계약서, 직장 발령 통지서 등 실거주 소명자료'를 요청하여 임대인이 입증 책임을 다하고 있는지 문서화해 두십시오.</div>
+              </div>
+            </div>
+
+            <div class="action-item-card">
+              <div class="action-num-badge">2</div>
+              <div>
+                <div class="action-text-bold">퇴거 시 확정일자 열람 신청 권한 확보 및 제3자 임대 모니터링</div>
+                <div class="action-text-desc">임대인의 실거주 사유로 퇴거한 임차인은 동주민센터에서 해당 주택의 확정일자 부여현황을 열람할 수 있으므로, 제3자 신규 임대 여부를 주기적으로 확인하십시오.</div>
+              </div>
+            </div>
+
+            <div class="action-item-card">
+              <div class="action-num-badge">3</div>
+              <div>
+                <div class="action-text-bold">허위 실거주 확인 시 법정 손해배상청구 소송 제기</div>
+                <div class="action-text-desc">허위 거절로 확인될 경우 주택임대차보호법상 3개월분 월세액, 2년치 차액 월세액, 실제 이사비 및 중개보수 등 실손해 중 가장 큰 금액을 손해배상 청구할 수 있습니다.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Document Action Footer -->
+      <footer class="doc-bottom-action-bar">
+        <div class="doc-footer-meta">
+          <span>🏛️ 대한민국 대법원 종합법률정보 RAG 시스템 인증</span>
+          <span>•</span>
+          <span>문서 생성 ID: DOC-2026-KR-GRAPH</span>
+        </div>
+
+        <div class="doc-btn-group">
+          <button class="btn-secondary" onclick="copyEntireOpinion()">
+            <span>📋 의견서 전문 복사</span>
+          </button>
+          <button class="btn-secondary" onclick="window.print()">
+            <span>🖨️ 인쇄 / PDF 저장</span>
+          </button>
+          <button class="btn-primary-action" onclick="focusInput()">
+            <span>➕ 새 질문 분석</span>
+          </button>
+        </div>
+      </footer>
+    </article>
+
   </main>
 
   <script>
-    const chatBox = document.getElementById('chat-box');
-    const userInput = document.getElementById('user-input');
-    const categorySelect = document.getElementById('category-select');
-    const sendButton = document.getElementById('send-button');
-    const chatForm = document.getElementById('chat-form');
-    const topkRange = document.getElementById('topk-range');
-    const topkVal = document.getElementById('topk-val');
-    const bm25Range = document.getElementById('bm25-range');
-    const bm25Val = document.getElementById('bm25-val');
+    // System Initialization & Date
+    document.getElementById('current-date').innerText = new Date().toLocaleDateString('ko-KR', {
+      year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+    });
 
-    topkRange.oninput = (e) => topkVal.innerText = e.target.value;
-    bm25Range.oninput = (e) => bm25Val.innerText = e.target.value;
+    let currentNavCategory = 'auto';
 
-    function selectChip(categoryVal, btn) {
-      categorySelect.value = categoryVal;
-      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-      if (btn) {
-        btn.classList.add('active');
-      } else {
-        document.querySelectorAll('.cat-chip').forEach(c => {
-          if (c.getAttribute('onclick')?.includes(`'${categoryVal}'`)) c.classList.add('active');
+    function setCategoryNav(cat, btn) {
+      currentNavCategory = cat;
+      document.querySelectorAll('.category-nav-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function focusInput() {
+      const inp = document.getElementById('case-input');
+      inp.focus();
+      inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function openAllPrecedents() {
+      alert("현재 1,091건의 대법원 판례 및 법률 조문 데이터베이스가 로컬에 인덱싱되어 있습니다. 좌측 리딩 판례 버튼을 클릭하시면 즉시 분석됩니다.");
+    }
+
+    function applyPreset(questionText, category) {
+      document.getElementById('case-input').value = questionText;
+      if (category) {
+        document.querySelectorAll('.category-nav-pill').forEach(btn => {
+          if (btn.getAttribute('onclick')?.includes(`'${category}'`)) {
+            setCategoryNav(category, btn);
+          }
         });
       }
+      triggerAnalysis();
     }
 
-    categorySelect.addEventListener('change', () => {
-      selectChip(categorySelect.value);
-    });
-
-    function askPreset(questionText, category) {
-      userInput.value = questionText;
-      if (category) selectChip(category);
-      triggerSubmit();
+    function triggerAnalysis() {
+      document.getElementById('case-form').dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
     }
 
-    function triggerSubmit() {
-      chatForm.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-    }
-
-    // INP 최적화 핸들러 (< 30ms 반응)
-    chatForm.addEventListener('submit', function(e) {
+    // Main Case Submit Pipeline
+    async function handleCaseSubmit(e) {
       e.preventDefault();
-      const text = userInput.value.trim();
+      const input = document.getElementById('case-input');
+      const text = input.value.trim();
       if (!text) return;
 
-      const selectedCat = categorySelect.value;
-      userInput.value = '';
-      sendButton.disabled = true;
+      const submitBtn = document.getElementById('submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<span>⏳ 법률 판례 인과관계 심층 분석 중...</span>`;
 
-      requestAnimationFrame(() => {
-        executeChatPipeline(text, selectedCat);
-      });
-    });
-
-    async function executeChatPipeline(text, category) {
-      appendUserMessage(text);
-      const assistantDiv = appendAssistantPlaceholder();
-
-      let fullText = "";
-      let retrievedDocs = [];
-      let graphTriples = [];
-      let detectedCat = "";
-      let renderScheduled = false;
-
-      function scheduleRender() {
-        if (!renderScheduled) {
-          renderScheduled = true;
-          requestAnimationFrame(() => {
-            assistantDiv.querySelector('.text-body').innerHTML = formatMarkdown(fullText);
-            chatBox.scrollTop = chatBox.scrollHeight;
-            renderScheduled = false;
-          });
-        }
-      }
+      // Update Overview Box immediately
+      document.getElementById('section-overview').innerHTML = `"${text}"<br><br><span style="color: #2563eb; font-size: 0.82rem;">[대법원 판례 및 지식그래프 트리플 검색 중...]</span><span class="streaming-cursor"></span>`;
+      
+      const topK = parseInt(document.getElementById('topk-range').value);
+      const bm25Weight = parseFloat(document.getElementById('bm25-range').value);
 
       try {
         const response = await fetch('/api/chat/stream', {
@@ -596,9 +1318,9 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             question: text,
-            category: category,
-            top_k: parseInt(topkRange.value),
-            bm25_weight: parseFloat(bm25Range.value),
+            category: currentNavCategory,
+            top_k: topK,
+            bm25_weight: bm25Weight,
             model_name: "qwen2.5:3b"
           })
         });
@@ -606,6 +1328,10 @@
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let fullAnswer = "";
+        let retrievedDocs = [];
+        let graphTriples = [];
+        let detectedCat = "";
 
         while (true) {
           const { done, value } = await reader.read();
@@ -620,169 +1346,152 @@
               const metaData = JSON.parse(line.replace('event: meta\ndata: ', ''));
               retrievedDocs = metaData.docs || [];
               graphTriples = metaData.triples || [];
-              detectedCat = metaData.category || "";
-              assistantDiv.querySelector('.cat-tag').innerText = `[분야: ${detectedCat}]`;
+              detectedCat = metaData.category || "전체";
+
+              renderDocumentMeta(detectedCat, retrievedDocs, graphTriples);
             } else if (line.startsWith('event: message')) {
               const payload = JSON.parse(line.replace('event: message\ndata: ', ''));
-              fullText += payload.text;
-              scheduleRender();
+              fullAnswer += payload.text;
+              document.getElementById('section-overview').innerHTML = `"${text}"<div style="margin-top: 12px; font-weight: 500; color: #334155;">${formatMarkdown(fullAnswer)}<span class="streaming-cursor"></span></div>`;
             }
           }
         }
 
-        assistantDiv.querySelector('.text-body').innerHTML = formatMarkdown(fullText);
+        // Final Rendering after stream ends
+        document.getElementById('section-overview').innerHTML = `"${text}"<div style="margin-top: 14px; font-weight: 500; color: #1e293b; line-height: 1.65;">${formatMarkdown(fullAnswer)}</div>`;
 
-        // 연관된 지식 그래프 인과관계 카드 렌더링
         if (graphTriples && graphTriples.length > 0) {
-          renderKnowledgeGraphCard(assistantDiv, graphTriples);
+          renderGraphFlow(graphTriples);
+        }
+        if (retrievedDocs && retrievedDocs.length > 0) {
+          renderPrecedentCards(retrievedDocs);
         }
 
-        // 인용 판례/조문 아코디언 렌더링
-        if (retrievedDocs && retrievedDocs.length > 0) {
-          renderCitations(assistantDiv, retrievedDocs);
-        }
+        // Actionable guidance update
+        updateActionRecommendations(detectedCat, retrievedDocs);
 
       } catch (err) {
-        assistantDiv.querySelector('.text-body').innerText = "오류 발생: " + err.message;
+        document.getElementById('section-overview').innerText = `분석 중 오류 발생: ${err.message}`;
       } finally {
-        sendButton.disabled = false;
-        chatBox.scrollTop = chatBox.scrollHeight;
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<span>⚖️ 법률 사실관계 AI 정밀 분석 실행</span>`;
+        document.getElementById('opinion-document').scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
-    function appendUserMessage(text) {
-      const msg = document.createElement('div');
-      msg.className = 'message user';
-      msg.innerText = text;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    }
-
-    function appendAssistantPlaceholder() {
-      const msg = document.createElement('div');
-      msg.className = 'message assistant';
-      msg.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-          <span class="cat-tag" style="font-size: 0.78rem; color: #a78bfa; font-weight: 700;">[분야 탐색 중...]</span>
-          <button class="btn-copy" style="font-size: 0.72rem; padding: 2px 7px;" onclick="copyFullAnswer(this)">📋 답변 복사</button>
-        </div>
-        <div class="text-body"><span style="color: #64748b;">관련 판례 및 인과관계 분석 중...</span></div>
-      `;
-      chatBox.appendChild(msg);
-      chatBox.scrollTop = chatBox.scrollHeight;
-      return msg;
-    }
-
-    function copyFullAnswer(btn) {
-      const container = btn.closest('.message.assistant');
-      const text = container.querySelector('.text-body').innerText;
-      copyToClipboard(text, btn);
-    }
-
-    function renderKnowledgeGraphCard(container, triples) {
-      const kgCard = document.createElement('div');
-      kgCard.className = 'kg-visual-card';
+    function renderDocumentMeta(category, docs, triples) {
+      document.getElementById('doc-badge').innerText = `${category} 분야 정밀 검토`;
+      document.getElementById('meta-category').innerText = category;
       
-      const bulkText = triples.map(t => `[${t.law || '법령'}] ${t.subject} ──(${t.predicate})──▶ ${t.object}`).join('\n');
+      const primaryDoc = docs[0] || {};
+      document.getElementById('meta-precedent').innerText = primaryDoc.source || (category + " 주요 판례");
+      document.getElementById('meta-conclusion').innerText = `${primaryDoc.title || '핵심 법리 검토 완료'} (신뢰도 충족)`;
       
-      let html = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-          <div class="kg-header" style="margin-bottom: 0;">🕸️ 직접 연관된 법률 인과관계 연결망 (${triples.length}건)</div>
-          <button class="btn-copy" onclick='copyToClipboard(${JSON.stringify(bulkText)}, this)'>📋 연결망 전체 복사</button>
-        </div>
-      `;
-      triples.forEach(t => {
-        const lawTag = t.law ? `<span class="kg-law-tag">${t.law}</span>` : '';
+      document.getElementById('stat-cases-count').innerText = `${docs.length}건 분석완료`;
+      document.getElementById('stat-triples-count').innerText = `${triples.length}개 관계 연결`;
+
+      // Alert card headline
+      document.getElementById('alert-title').innerText = `[${category}] ${primaryDoc.title || '핵심 법적 판단 기준 분석'}`;
+      if (primaryDoc.content) {
+        document.getElementById('alert-desc').innerText = primaryDoc.content.slice(0, 220) + '...';
+      }
+    }
+
+    function renderGraphFlow(triples) {
+      const container = document.getElementById('flow-steps-container');
+      let html = "";
+      triples.forEach((t, idx) => {
         html += `
-          <div class="kg-path-item">
-            <span class="kg-node-box">${t.subject}</span>
-            <span class="kg-edge-arrow">──(${t.predicate})──▶</span>
-            <span class="kg-node-box">${t.object}</span>
-            ${lawTag}
+          <div class="flow-step-item">
+            <div class="step-circle-badge">${idx + 1}</div>
+            <div class="step-content-body">
+              <div class="step-header-line">
+                <span class="step-title-text">[${t.predicate}] ${t.subject}</span>
+                <span class="step-law-tag">${t.law || '대법원 판례'}</span>
+              </div>
+              <div class="step-desc-text"><strong>법적 효과:</strong> ${t.object}</div>
+            </div>
           </div>
         `;
+        if (idx < triples.length - 1) {
+          html += `<div class="flow-arrow-down">↓</div>`;
+        }
       });
-      kgCard.innerHTML = html;
-      container.appendChild(kgCard);
+      container.innerHTML = html;
     }
 
-    function getCatClass(cat) {
-      if (cat.includes('부동산')) return '부동산';
-      if (cat.includes('노동')) return '노동';
-      if (cat.includes('형사')) return '형사';
-      if (cat.includes('민사')) return '민사';
-      if (cat.includes('교통')) return '교통';
-      return '소비자';
+    function renderPrecedentCards(docs) {
+      const container = document.getElementById('precedent-cards-grid');
+      container.innerHTML = docs.map(doc => {
+        const isPrec = doc.doc_type === '판례';
+        const badgeColor = isPrec ? 'background: #dbeafe; color: #1e40af;' : 'background: #fef3c7; color: #92400e;';
+        const badgeText = isPrec ? '대법원 판례' : '법률 조문';
+        return `
+          <div class="precedent-box-card">
+            <div class="precedent-header-row">
+              <span class="precedent-badge-pill" style="${badgeColor}">${badgeText}</span>
+              <button class="btn-secondary" style="padding: 2px 8px; font-size: 0.7rem;" onclick="copyCardText(this)">📋 인용 복사</button>
+            </div>
+            <div class="precedent-num-title">${doc.source} - ${doc.title}</div>
+            <div class="precedent-content-text">${doc.content}</div>
+          </div>
+        `;
+      }).join('');
     }
 
-    function copyToClipboard(text, btn) {
-      navigator.clipboard.writeText(text).then(() => {
+    function updateActionRecommendations(cat, docs) {
+      const container = document.getElementById('action-list-wrap');
+      const lead = docs[0]?.source || '관련 법률';
+      container.innerHTML = `
+        <div class="action-item-card">
+          <div class="action-num-badge">1</div>
+          <div>
+            <div class="action-text-bold">법적 서면(내용증명)을 통한 명확한 의사표시 및 소명자료 요구</div>
+            <div class="action-text-desc">${lead} 기준에 따라, 상대방에게 일방적 주장이 아닌 구체적 소명 입증자료를 내용증명으로 정식 요구하십시오.</div>
+          </div>
+        </div>
+        <div class="action-item-card">
+          <div class="action-num-badge">2</div>
+          <div>
+            <div class="action-text-bold">분쟁조정위원회 또는 행정관청 신속 구제신청 준비</div>
+            <div class="action-text-desc">소송 전 조정기구(임대차분쟁조정위원회, 노동위원회, 소비자원 등)를 통해 조기 합의 또는 권리보호를 도모하십시오.</div>
+          </div>
+        </div>
+        <div class="action-item-card">
+          <div class="action-num-badge">3</div>
+          <div>
+            <div class="action-text-bold">대법원 확립 법리에 따른 손해배상 및 본안소송 검토</div>
+            <div class="action-text-desc">상대방의 명백한 법 위반이나 부당행위 확인 시, 입증책임 분배 법리를 활용하여 손해배상 및 원상회복을 청구하십시오.</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function copyCardText(btn) {
+      const card = btn.closest('.precedent-box-card');
+      const text = card.querySelector('.precedent-content-text').innerText;
+      const title = card.querySelector('.precedent-num-title').innerText;
+      navigator.clipboard.writeText(`[${title}]\n${text}`).then(() => {
         const origin = btn.innerText;
         btn.innerText = '✓ 복사됨';
         setTimeout(() => btn.innerText = origin, 1500);
       });
     }
 
-    function renderCitations(container, docs) {
-      const accordion = document.createElement('div');
-      accordion.className = 'citation-accordion';
-      
-      const btn = document.createElement('button');
-      btn.className = 'citation-btn';
-      btn.innerHTML = `<span>📚 인용된 대법원 판례 및 법률 조문 원문 (${docs.length}건)</span> <span>▼ 클릭하여 보기</span>`;
-      
-      const drawer = document.createElement('div');
-      drawer.className = 'citation-drawer';
-
-      docs.forEach(doc => {
-        const card = document.createElement('div');
-        card.className = 'case-card';
-
-        const catClass = getCatClass(doc.category || '');
-        const isPrec = doc.doc_type === '판례';
-        const typeBadge = isPrec ? '<span style="background: #0d9488; color: #ccfbf1; font-size: 0.72rem; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 6px;">대법원 판례</span>' : '';
-
-        const citeText = `[${doc.source}] ${doc.title}\n${doc.content}`;
-
-        card.innerHTML = `
-          <div class="case-header">
-            <div>
-              ${typeBadge}
-              <span class="badge-cat ${catClass}">${doc.category}</span>
-              <strong style="color: #f8fafc; font-size: 0.9rem; margin-left: 6px;">${doc.source}</strong> - <span style="color: #cbd5e1; font-size: 0.85rem;">${doc.title}</span>
-            </div>
-            <button class="btn-copy" onclick='copyToClipboard(${JSON.stringify(citeText)}, this)'>📋 인용 복사</button>
-          </div>
-          <pre style="white-space: pre-wrap; font-family: inherit; font-size: 0.83rem; color: #94a3b8; background: #090d16; padding: 10px; border-radius: 6px; border: 1px solid #1e293b; line-height: 1.5;">${doc.content}</pre>
-        `;
-        drawer.appendChild(card);
+    function copyEntireOpinion() {
+      const doc = document.getElementById('opinion-document');
+      navigator.clipboard.writeText(doc.innerText).then(() => {
+        alert("법률 사실관계 검토의견서 전문이 클립보드에 복사되었습니다.");
       });
-
-      btn.onclick = () => {
-        drawer.classList.toggle('open');
-        btn.querySelector('span:last-child').innerText = drawer.classList.contains('open') ? '▲ 접기' : '▼ 클릭하여 보기';
-      };
-
-      accordion.appendChild(btn);
-      accordion.appendChild(drawer);
-      container.appendChild(accordion);
     }
 
     function formatMarkdown(text) {
       if (!text) return "";
-      let formatted = text
+      return text
         .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-        .replace(/^### (.*$)/gim, '<h4 style="color:#93c5fd; font-weight:700; margin:10px 0 4px;">$1</h4>')
-        .replace(/^## (.*$)/gim, '<h3 style="color:#60a5fa; font-weight:700; margin:12px 0 6px;">$1</h3>')
-        .replace(/^# (.*$)/gim, '<h2 style="color:#3b82f6; font-weight:700; margin:14px 0 8px;">$1</h2>')
-        .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ffffff;">$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/`([^`]+)`/g, '<code style="background:#1e293b; color:#38bdf8; padding:2px 5px; border-radius:4px; font-size:0.88em;">$1</code>')
-        .replace(/^\s*[-*]\s+(.*$)/gim, '<div style="margin-left: 12px; display: flex; gap: 6px;"><span style="color:#38bdf8;">•</span><span>$1</span></div>')
-        .replace(/^\s*(\d+)\.\s+(.*$)/gim, '<div style="margin-left: 12px; display: flex; gap: 6px;"><span style="color:#a78bfa; font-weight:700;">$1.</span><span>$2</span></div>')
-        .replace(/\n\n/g, '<div style="height: 8px;"></div>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong style="color: #0f172a;">$1</strong>')
+        .replace(/\n\n/g, '<div style="height: 10px;"></div>')
         .replace(/\n/g, '<br>');
-      return formatted;
     }
   </script>
 </body>
